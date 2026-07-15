@@ -19,6 +19,9 @@ keystore.properties
 # Native build
 .cxx/
 
+# Gradle daemon JVM toolchain pin (machine-specific)
+gradle/gradle-daemon-jvm.properties
+
 # OS
 .DS_Store
 Thumbs.db

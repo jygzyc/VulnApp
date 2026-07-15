@@ -1,7 +1,9 @@
 # MoChat — Vulnerable Super-App 靶场
 
 A deliberately-vulnerable Android training app: an IM + wallet + mall + mini-app
-"super-app" (`com.mochat.app`) that bundles **14 app-layer exploit chains** (each depth ≥ 6),
+"super-app" (`com.mochat.app`) that bundles **10 composite exploit chains** covering
+every Android component type (Activity, Service, Receiver, Provider, WebView,
+Intent/PendingIntent, Parcel, Storage),
 all genuinely exploitable on **Android 13/14/15/16**. Designed against real-world
 app-layer vulnerability classes documented in public security research and the
 移动安全知识库.
@@ -123,23 +125,26 @@ VulnApp/
 
 ---
 
-## The 14 chains
+## The 10 composite chains
 
-All app-layer (no OS-CVE dependency). See `docs/chains/chain-NN.md` for full writeups.
+All app-layer (no OS-CVE dependency). Each chain crosses 2-4 components and requires
+5-8 independent atomic steps from a zero-permission attacker to final impact.
+Chains are mapped to the decx app-vulnhunt composite-chain shapes.
 
-| # | Chain | Category | Surface |
-|---|-------|----------|---------|
-| 1  | Wallet Heist               | storage   | PaymentActivity + WalletService |
-| 2  | Chat Exfiltration          | component | Contacts/Message/FileBackup providers |
-| 3  | Mall WebView RCE           | webview   | MallH5Activity |
-| 4  | PendingIntent File Theft   | intent    | PushService |
-| 5  | Intent Redirection         | intent    | ShareReceiver |
-| 6  | Wallet Crypto Oracle       | storage   | WalletService (Messenger) |
-| 7  | Mini-App AppSecret Leak    | webview   | MallH5Activity (mini-app) |
-| 8  | Plugin Dynamic-Load RCE    | storage   | OrderService |
-| 9  | ZipSlip RCE                | storage   | OrderService |
-| 10 | MITM → JWT Forge → ATO     | network   | PayWebActivity |
-| 11 | App-Level Parcel Mismatch  | parcel    | OrderService (PaymentOrder) |
-| 12 | Biometric + Frida Repack   | resilience| KeyguardBypassActivity |
-| 13 | 4-Stage ACE via Exported Surface | component | LiveWallPreview + NotificationReceiver |
-| 14 | Exported Account Takeover  | component | AccountActivity + TokenReceiver |
+| # | Chain | Steps | Components crossed |
+|---|-------|-------|--------------------|
+| 1  | Wallet Drain via SQLi→Oracle→Payment       | 6 | Provider → Service → Activity |
+| 2  | Chat PII Exfiltration Chain                 | 5 | Provider → Provider → Activity |
+| 3  | WebView RCE to Persistent Backdoor          | 6 | WebView → Receiver → Provider |
+| 4  | Messenger Oracle + Intent Redirect          | 5 | Service → Receiver |
+| 5  | PendingIntent Hijack to Provider Theft      | 6 | Service → Intent → Provider |
+| 6  | Broadcast Token Leak → JWT Forge → ATO      | 6 | Receiver → Storage → Network |
+| 7  | Parcel Mismatch Payment Forgery             | 5 | Service (Parcel mismatch) |
+| 8  | Backup Extraction + Native Crypto Reverse   | 6 | Storage → Native (.so reverse) |
+| 9  | ZipSlip + DEX Plant → Code Execution        | 6 | Service → Provider → Dynamic load |
+| 10 | Biometric + Root Bypass → Wallet Unlock     | 5 | Resilience → Activity (Frida) |
+
+**Component coverage**: Activity ✅ Service ✅ Receiver ✅ Provider ✅ WebView ✅
+Intent/PendingIntent ✅ Parcel ✅ Storage ✅ Native ✅ Resilience ✅
+
+

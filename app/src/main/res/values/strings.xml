@@ -33,7 +33,7 @@
     <string name="profile_user">Alice · u_1001</string>
     <string name="profile_security">Security Check</string>
     <string name="profile_chains">Exploit Chains (reference)</string>
-    <string name="profile_chains_sub">14 app-layer chains · tap for writeup</string>
+    <string name="profile_chains_sub">10 composite chains · tap for writeup</string>
 
     <!-- Generic -->
     <string name="empty">—</string>
