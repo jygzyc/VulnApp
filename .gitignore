@@ -1,0 +1,28 @@
+# Build outputs
+.gradle/
+build/
+app/build/
+**/build/
+*.apk
+*.aab
+*.keystore
+*.jks
+local.properties
+keystore.properties
+
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Native build
+.cxx/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI
+.zcode
+

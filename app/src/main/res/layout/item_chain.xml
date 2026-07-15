@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="14dp"
+    android:layout_marginEnd="14dp"
+    android:layout_marginBottom="10dp"
+    android:background="@drawable/bg_card"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:padding="16dp">
+
+    <!-- Row 1: chain id + name + difficulty chip -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/chainId"
+            style="@style/Text.ChainId"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:id="@+id/chainName"
+            style="@style/Text.ChainName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/chainDiff"
+            style="@style/Chip.Diff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <!-- Row 2: category tag -->
+    <TextView
+        android:id="@+id/chainCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_chip_rounded"
+        android:textColor="@color/tag_fg"
+        android:textSize="10sp"
+        android:textStyle="bold"
+        android:paddingStart="7dp"
+        android:paddingEnd="7dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:letterSpacing="0.04" />
+
+    <!-- Row 3: vulnerable component (monospace path) -->
+    <TextView
+        android:id="@+id/chainComponent"
+        style="@style/Text.ChainComponent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp" />
+
+    <!-- Row 4: modern-Android exploitability note -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:gravity="center_vertical">
+
+        <View
+            android:layout_width="3dp"
+            android:layout_height="3dp"
+            android:layout_marginEnd="6dp"
+            android:background="@color/chip_easy_fg" />
+
+        <TextView
+            android:id="@+id/chainModern"
+            style="@style/Text.ChainModern"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+    </LinearLayout>
+</LinearLayout>

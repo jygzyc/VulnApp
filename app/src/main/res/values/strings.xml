@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">MoChat</string>
+
+    <!-- Tabs -->
+    <string name="tab_chat">Chats</string>
+    <string name="tab_wallet">Wallet</string>
+    <string name="tab_mall">Mall</string>
+    <string name="tab_profile">Me</string>
+
+    <!-- Chat -->
+    <string name="chat_title">Chats</string>
+    <string name="chat_search_hint">Search contacts…</string>
+
+    <!-- Wallet -->
+    <string name="wallet_title">Wallet</string>
+    <string name="wallet_balance_label">Balance (fen)</string>
+    <string name="wallet_pay">Transfer</string>
+    <string name="wallet_pay_hint_to">Recipient account id</string>
+    <string name="wallet_pay_hint_amount">Amount (fen)</string>
+    <string name="wallet_pay_hint_pin">PIN (optional)</string>
+    <string name="wallet_pay_btn">Pay</string>
+    <string name="wallet_result_default">Enter transfer details and tap Pay.</string>
+
+    <!-- Mall -->
+    <string name="mall_title">Mall</string>
+    <string name="mall_h5_section">WebView Container</string>
+    <string name="mall_open_h5">Open Mall H5</string>
+    <string name="mall_open_miniapp">Open Mini App</string>
+    <string name="mall_pay_web">Pay Web (TLS)</string>
+
+    <!-- Profile -->
+    <string name="profile_title">My Account</string>
+    <string name="profile_user">Alice · u_1001</string>
+    <string name="profile_security">Security Check</string>
+    <string name="profile_chains">Exploit Chains (reference)</string>
+    <string name="profile_chains_sub">14 app-layer chains · tap for writeup</string>
+
+    <!-- Generic -->
+    <string name="empty">—</string>
+</resources>

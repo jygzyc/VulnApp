@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  MoChat — deliberately vulnerable super-app.
+  The manifest below is the curriculum: every intentionally-exported component is a
+  chain entry point. Flags kept here mirror the standard vulnerable-app conventions:
+    - debuggable="true"        (chain #12 jdwp)
+    - allowBackup="true"       (chain #1 wallet data exfil)
+    - usesCleartextTraffic     (chain #10 MITM)
+    - exported Activities/Services/Providers/Receivers
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
+    <application
+        android:name=".MoChatApp"
+        android:label="MoChat"
+        android:icon="@mipmap/ic_launcher"
+        android:theme="@style/Theme.MoChat"
+        android:debuggable="true"
+        android:allowBackup="true"
+        android:usesCleartextTraffic="true"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="34">
+
+        <!-- ============ Launcher ============ -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- ============ CHAIN #1/#6 Wallet ============ -->
+        <!-- Directly invokable; skips the PIN gate when no extra is supplied. -->
+        <activity
+            android:name=".wallet.PaymentActivity"
+            android:exported="true"
+            android:taskAffinity="" />
+
+        <!-- Messenger-based decryption oracle; exported. -->
+        <service
+            android:name=".wallet.WalletService"
+            android:exported="true" />
+
+        <!-- ============ CHAIN #2 Chat / providers ============ -->
+        <!-- Exported with NO read permission — leaks the whole contact/message DB. -->
+        <provider
+            android:name=".im.ContactsProvider"
+            android:authorities="com.mochat.app.contacts"
+            android:exported="true" />
+
+        <provider
+            android:name=".im.MessageProvider"
+            android:authorities="com.mochat.app.messages"
+            android:exported="true" />
+
+        <!-- FileBackupProvider: openFile() is vulnerable to ../ path traversal. -->
+        <provider
+            android:name=".im.FileBackupProvider"
+            android:authorities="com.mochat.app.backup"
+            android:exported="true"
+            android:grantUriPermissions="true" />
+
+        <!-- ============ CHAIN #3/#7 Mall WebView + mini-app ============ -->
+        <activity
+            android:name=".mall.MallH5Activity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <!-- Deeplink surface — reachable from a browser / QR / attacker app. -->
+                <data android:scheme="mochat" android:host="mall" android:pathPrefix="/open" />
+            </intent-filter>
+        </activity>
+
+        <!-- ============ CHAIN #4 PendingIntent file theft ============ -->
+        <service
+            android:name=".settings.PushService"
+            android:exported="true" />
+
+        <!-- ============ CHAIN #5 Intent redirection ============ -->
+        <!-- Takes an embedded Intent extra and forwards it to startActivity. -->
+        <receiver
+            android:name=".settings.ShareReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mochat.app.action.SHARE" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ============ CHAIN #8/#9/#11 Order / plugin / zip ============ -->
+        <service
+            android:name=".mall.OrderService"
+            android:exported="true" />
+
+        <provider
+            android:name=".mall.MallFileProvider"
+            android:authorities="com.mochat.app.mall.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- Deliberately over-broad: root-path maps to "/" — the classic
+                 FileProvider misconfig (chain #8/#13). -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/mall_file_paths" />
+        </provider>
+
+        <!-- ============ CHAIN #10 Network MITM ============ -->
+        <activity
+            android:name=".mall.PayWebActivity"
+            android:exported="true" />
+
+        <!-- ============ CHAIN #12 Resilience bypass ============ -->
+        <activity
+            android:name=".settings.KeyguardBypassActivity"
+            android:exported="true" />
+
+        <!-- ============ CHAIN #13 exported-surface 4-stage ACE ============ -->
+        <activity
+            android:name=".im.LiveWallPreviewActivity"
+            android:exported="true" />
+
+        <receiver
+            android:name=".im.NotificationReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mochat.app.action.NOTIFY" />
+            </intent-filter>
+        </receiver>
+
+        <!-- ============ CHAIN #14 exported account ============ -->
+        <activity
+            android:name=".wallet.AccountActivity"
+            android:exported="true" />
+
+        <receiver
+            android:name=".wallet.TokenReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.mochat.app.action.TOKEN_BROADCAST" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+</manifest>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Deliberately over-broad FileProvider config (chain #8 / #13).
+  <root-path path=""/> maps to new File("/") — the canonical misconfig
+  that yields arbitrary file read/write across the whole filesystem.
+-->
+<paths>
+    <files-path name="internal" path="." />
+    <cache-path name="cache" path="." />
+    <external-path name="external" path="." />
+    <external-files-path name="ext_files" path="." />
+    <root-path name="root" path="" />
+</paths>

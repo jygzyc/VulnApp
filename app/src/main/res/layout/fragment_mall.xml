@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/mall_title"
+            style="@style/Text.Header"
+            android:paddingBottom="16dp" />
+
+        <!-- Product grid (static demo cards) -->
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/item_product" android:id="@+id/p1" />
+            <include layout="@layout/item_product" android:id="@+id/p2" />
+            <include layout="@layout/item_product" android:id="@+id/p3" />
+        </LinearLayout>
+
+        <!-- Mall H5 entry (chain #3 / #7) — loads local assets -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="@string/mall_h5_section"
+            style="@style/Text.ChainName" />
+
+        <Button
+            android:id="@+id/openH5Btn"
+            style="@style/MoButton.Accent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/mall_open_h5" />
+
+        <Button
+            android:id="@+id/openMiniAppBtn"
+            style="@style/MoButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/mall_open_miniapp" />
+
+        <Button
+            android:id="@+id/openPayWebBtn"
+            style="@style/MoButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/mall_pay_web" />
+    </LinearLayout>
+</ScrollView>

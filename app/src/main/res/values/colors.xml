@@ -1,0 +1,32 @@
+<resources>
+    <!-- Base palette -->
+    <color name="bg">#0F1115</color>
+    <color name="bg_surface">#171A21</color>
+    <color name="bg_card">#1E222B</color>
+    <color name="bg_card_ripple">#262B36</color>
+    <color name="divider">#2A2F3A</color>
+
+    <color name="text_primary">#E8ECF1</color>
+    <color name="text_secondary">#9AA4B2</color>
+    <color name="text_tertiary">#6B7480</color>
+
+    <!-- Accent -->
+    <color name="accent">#FF4D6A</color>
+    <color name="accent_dim">#3A2A30</color>
+
+    <!-- Difficulty chips (background / text) -->
+    <color name="chip_easy_bg">#1B3A2A</color>
+    <color name="chip_easy_fg">#4ADE80</color>
+    <color name="chip_medium_bg">#3A3217</color>
+    <color name="chip_medium_fg">#FACC15</color>
+    <color name="chip_hard_bg">#3A2417</color>
+    <color name="chip_hard_fg">#FB923C</color>
+    <color name="chip_insane_bg">#3A1717</color>
+    <color name="chip_insane_fg">#F87171</color>
+
+    <!-- Category tag -->
+    <color name="tag_bg">#222A38</color>
+    <color name="tag_fg">#7FB3FF</color>
+
+    <color name="ic_launcher_background">#0F1626</color>
+</resources>
