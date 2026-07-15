@@ -26,6 +26,10 @@ import com.mochat.app.core.ServiceLocator;
  *       receive plaintext in the reply. <b>This is the decryption oracle.</b></li>
  *   <li>{@code MSG_BALANCE} — returns the current decrypted balance in fen.</li>
  *   <li>{@code MSG_PAY} — performs an unauthenticated transfer (to + amount).</li>
+ *   <li>{@code MSG_ADMIN_QUERY} — a "privileged" query guarded by a package-name
+ *       whitelist. The guard trusts the caller-supplied {@code packageName} extra
+ *       instead of {@link android.os.Binder#getCallingUid()}, so any app can spoof
+ *       a trusted caller (the "authorization bypass" pattern seen in real OEM apps).</li>
  * </ul>
  * </p>
  *
@@ -39,6 +43,8 @@ public final class WalletService extends Service {
     public static final int MSG_DECRYPT = 0xD01;
     public static final int MSG_BALANCE = 0xD02;
     public static final int MSG_PAY     = 0xD03;
+    /** Authorization-bypass query (spoofable package whitelist). */
+    public static final int MSG_ADMIN_QUERY = 0xD04;
 
     private final Messenger messenger = new Messenger(new Incoming());
 
@@ -69,6 +75,19 @@ public final class WalletService extends Service {
                         out.putString("txn", txn);
                         break;
                     }
+                    case MSG_ADMIN_QUERY: {
+                        // VULNERABLE: trusts the caller-supplied 'packageName' extra
+                        // instead of Binder.getCallingUid(). Any app can pass
+                        // packageName="com.mochat.app.trusted" to bypass the whitelist.
+                        String pkg = msg.getData().getString("packageName");
+                        if (isTrustedCaller(pkg)) {
+                            // privileged action: dump full key table
+                            out.putString("keys", dumpKeyTable());
+                        } else {
+                            out.putString("error", "denied: " + pkg);
+                        }
+                        break;
+                    }
                     default:
                         super.handleMessage(msg);
                         return;
@@ -83,6 +102,35 @@ public final class WalletService extends Service {
                 msg.replyTo.send(reply);
             } catch (RemoteException e) {
                 Log.w(TAG, "reply failed", e);
+            }
+        }
+
+        /**
+         * VULNERABLE whitelist: checks the caller-supplied package name string
+         * instead of Binder.getCallingUid(). The correct fix is
+         * {@code getPackageManager().getNameForUid(Binder.getCallingUid())}.
+         */
+        private boolean isTrustedCaller(String pkg) {
+            return "com.mochat.app.trusted".equals(pkg)
+                || "com.mochat.app".equals(pkg);
+        }
+
+        /** Dumps the keys table (MASTER_PIN + WALLET_KEY) — the privileged action. */
+        private String dumpKeyTable() {
+            try {
+                android.database.sqlite.SQLiteDatabase db =
+                        new com.mochat.app.util.DbHelpers.WalletDb(
+                                getApplicationContext()).getReadableDatabase();
+                android.database.Cursor c = db.rawQuery(
+                        "SELECT k, v FROM " + com.mochat.app.util.DbHelpers.WalletDb.T_KEYS, null);
+                StringBuilder sb = new StringBuilder();
+                while (c.moveToNext()) {
+                    sb.append(c.getString(0)).append("=").append(c.getString(1)).append("\n");
+                }
+                c.close();
+                return sb.toString();
+            } catch (Throwable t) {
+                return "err: " + t.getMessage();
             }
         }
     }

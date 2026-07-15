@@ -123,6 +123,11 @@
             android:name=".mall.PayWebActivity"
             android:exported="true" />
 
+        <!-- Provider trampoline: queries arbitrary URIs under MoChat's identity. -->
+        <activity
+            android:name=".mall.ProviderProxyActivity"
+            android:exported="true" />
+
         <!-- ============ CHAIN #12 Resilience bypass ============ -->
         <activity
             android:name=".settings.KeyguardBypassActivity"
