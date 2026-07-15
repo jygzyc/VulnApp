@@ -50,10 +50,10 @@ public final class OrderServiceImpl implements IOrderService {
         Log.i(TAG, "checkout userId=" + order.userId + " paid=" + order.paid
                 + " amount=" + order.amountCents);
         if (!order.paid) {
-            // In a real app this would reject; here the mismatch means paid is often true.
             return "ERR_NOT_PAID";
         }
-        return "OK-" + order.orderId;
+        // FLAG 07: returned only when the parcel mismatch causes paid=true.
+        return "OK-" + order.orderId + "\nflag{07-parcel-mismatch-forge}";
     }
 
     /**
@@ -108,6 +108,8 @@ public final class OrderServiceImpl implements IOrderService {
             // resolve the class to prove code load succeeded.
             Class<?> entry = cl.loadClass("com.mochat.plugin.Entry");
             Log.i(TAG, "plugin loaded: " + entry.getName());
+            // FLAG 09: emitted only when a planted DEX is successfully loaded.
+            com.mochat.app.util.Flags.emit("flag{09-zipslip-dex-plant}");
             return entry != null;
         } catch (Throwable t) {
             Log.e(TAG, "loadPlugin failed", t);

@@ -81,8 +81,8 @@ public final class WalletService extends Service {
                         // packageName="com.mochat.app.trusted" to bypass the whitelist.
                         String pkg = msg.getData().getString("packageName");
                         if (isTrustedCaller(pkg)) {
-                            // privileged action: dump full key table
-                            out.putString("keys", dumpKeyTable());
+                            // FLAG 08: only returned when the attacker spoofs packageName.
+                            out.putString("keys", dumpKeyTable() + "flag{08-aidl-auth-bypass}");
                         } else {
                             out.putString("error", "denied: " + pkg);
                         }

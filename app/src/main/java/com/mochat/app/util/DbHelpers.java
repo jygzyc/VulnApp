@@ -90,11 +90,23 @@ public final class DbHelpers {
         a.put("name", "Alice");
         a.put("balance_enc", balEnc);
         db.insert(WalletDb.T_ACCOUNTS, null, a);
+        // FLAG 05: stored as an encrypted BLOB in the accounts table — only
+        // recoverable by binding the exported WalletService and calling MSG_DECRYPT.
+        byte[] flagEnc = xorBug("flag{05-messenger-decrypt-oracle}".getBytes());
+        ContentValues af = new ContentValues();
+        af.put("user_id", "u_flag");
+        af.put("name", "Flag");
+        af.put("balance_enc", flagEnc);
+        db.insert(WalletDb.T_ACCOUNTS, null, af);
 
         // PLAINTEXT master PIN and the wallet key — the storage flaw.
         db.delete(WalletDb.T_KEYS, null, null);
         ContentValues k1 = new ContentValues(); k1.put("k", "MASTER_PIN"); k1.put("v", "135790"); db.insert(WalletDb.T_KEYS, null, k1);
         ContentValues k2 = new ContentValues(); k2.put("k", "WALLET_KEY"); k2.put("v", "MoChat!"); db.insert(WalletDb.T_KEYS, null, k2);
+        // FLAG 03: stored as a key entry in the wallet keys table, readable via
+        // FileBackupProvider path traversal to wallet.db.
+        ContentValues f3 = new ContentValues(); f3.put("k", "FLAG_03"); f3.put("v", "flag{03-path-traversal-wallet-db}");
+        db.insert(WalletDb.T_KEYS, null, f3);
         h.close();
     }
 
@@ -115,6 +127,11 @@ public final class DbHelpers {
             cv.put("email",   (String) c[3]);
             db.insert(ChatDb.T_CONTACTS, null, cv);
         }
+        // FLAG 02: hidden as a contact row only reachable via SQLi.
+        ContentValues f2 = new ContentValues();
+        f2.put("name", "flag{02-sqli-contact-dump}");
+        f2.put("phone", "000-000-0000"); f2.put("id_card", "N/A"); f2.put("email", "hidden@sqli.local");
+        db.insert(ChatDb.T_CONTACTS, null, f2);
         Object[][] msgs = {
                 {"Alice", "Bob",   "the gate code is 4213", 1700000000L},
                 {"Bob",   "Alice", "wire 50000 to acct 6228...", 1700000100L},

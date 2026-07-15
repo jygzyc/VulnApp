@@ -72,10 +72,10 @@ public final class ProfileFragment extends Fragment {
             h.id.setText(String.format("#%02d", c.id));
             h.name.setText(c.name);
             h.category.setText(c.category.toUpperCase());
-            h.component.setText(c.component);
-            // Show the number of atomic steps (count the ①②③ markers).
+            h.component.setText(c.flag);
+            // Show step count
             int stepCount = countSteps(c.steps);
-            h.modern.setText(stepCount + " steps · " + c.modern);
+            h.modern.setText(stepCount + " steps · " + c.difficulty.name());
 
             int bg, fg;
             switch (c.difficulty) {
