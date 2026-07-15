@@ -72,10 +72,8 @@ public final class ProfileFragment extends Fragment {
             h.id.setText(String.format("#%02d", c.id));
             h.name.setText(c.name);
             h.category.setText(c.category.toUpperCase());
-            h.component.setText(c.flag);
-            // Show step count
-            int stepCount = countSteps(c.steps);
-            h.modern.setText(stepCount + " steps · " + c.difficulty.name());
+            h.component.setText(c.objective);
+            h.modern.setText(c.difficulty.name());
 
             int bg, fg;
             switch (c.difficulty) {
@@ -89,16 +87,6 @@ public final class ProfileFragment extends Fragment {
             h.diff.setTextColor(ContextCompat.getColor(h.itemView.getContext(), fg));
 
             h.itemView.setOnClickListener(v -> click.on(c));
-        }
-
-        /** Count the circled-number markers (①②③…) in the step string. */
-        private int countSteps(String steps) {
-            int n = 0;
-            for (int i = 0; i < steps.length(); i++) {
-                char ch = steps.charAt(i);
-                if (ch >= 0x2460 && ch <= 0x2473) n++; // ①-⑲
-            }
-            return n;
         }
 
         @Override public int getItemCount() { return items.size(); }

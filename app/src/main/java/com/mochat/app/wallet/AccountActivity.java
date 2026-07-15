@@ -27,11 +27,8 @@ public final class AccountActivity extends Activity {
         IPaymentService svc = ServiceLocator.get(IPaymentService.class);
         long balance = svc.balance();
         Log.i(TAG, "balance displayed = " + balance + " fen");
-        // FLAG 01: emitted only when the exported activity is launched without auth.
-        com.mochat.app.util.Flags.emit(com.mochat.app.util.Flags.ALL[0]);
         TextView tv = new TextView(this);
-        tv.setText("Balance: " + (balance >= 0 ? balance : "???") + " fen\n\n"
-                + com.mochat.app.util.Flags.ALL[0]);
+        tv.setText("Balance: " + (balance >= 0 ? balance : "???") + " fen");
         tv.setPadding(32, 48, 32, 48);
         tv.setTextSize(20f);
         setContentView(tv);

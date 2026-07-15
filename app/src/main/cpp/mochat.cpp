@@ -126,10 +126,8 @@ Java_com_mochat_app_nbridge_NativeBridge_antiDebug(JNIEnv* env, jclass) {
 JNIEXPORT jbyteArray JNICALL
 Java_com_mochat_app_nbridge_NativeBridge_obfKey(JNIEnv* env, jclass) {
     // Master key for the Java Obf class.
-    // Real value: "MoChat!" — XOR-encoded by OBFUSCATE() in the .rodata section.
-    // FLAG 10: the final flag is OBFUSCATE'd here. An analyst who reverses the
-    // XOR routine and the OBFUSCATE macro recovers it from the .so binary.
-    const char* k = OBFUSCATE("MoChat!\nflag{10-native-crypto-reverse}");
+    // Real value: "MoChat!" — the XOR key, XOR-encoded by OBFUSCATE().
+    const char* k = OBFUSCATE("MoChat!");
     jsize len = static_cast<jsize>(strlen(k));
     jbyteArray out = env->NewByteArray(len);
     env->SetByteArrayRegion(out, 0, len, reinterpret_cast<const jbyte*>(k));

@@ -5,17 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Exploit-chain registry — 10 chains in strict ascending difficulty.
+ * 10 exploit chains in strict ascending difficulty.
  *
- * <p>Difficulty ladder:</p>
- * <ol>
- *   <li><b>Easy</b>   (#1–#3): single exported component, direct access, no chaining.</li>
- *   <li><b>Medium</b> (#4–#7): cross-component, requires understanding IPC + Intent extras.</li>
- *   <li><b>Hard</b>   (#8–#9): native reverse, crypto oracle, multi-step composition.</li>
- *   <li><b>Insane</b> (#10): full reverse-engineering of native obfuscated crypto.</li>
- * </ol>
+ * <p>There are no artificial "flag{}" strings. The proof of exploitation is
+ * recovering <b>real sensitive data</b>: bank card numbers, payment PINs, JWT
+ * tokens, private chat messages, server credentials. Each chain's {@code objective}
+ * field describes the real-world data the attacker obtains.</p>
  *
- * <p>Each chain has a unique flag planted at its sink. Collect all 10 to prove mastery.</p>
+ * <p>Difficulty ladder: EASY (#1-3) → MEDIUM (#4-7) → HARD (#8-9) → INSANE (#10).</p>
  */
 public final class Chains {
 
@@ -29,99 +26,70 @@ public final class Chains {
         public final Diff  difficulty;
         public final String category;
         public final String component;
-        public final String flag;
-        /** Full step-by-step path. */
-        public final String steps;
+        /** The real sensitive data an attacker obtains — proof of exploitation. */
+        public final String objective;
 
         public Chain(int id, String name, Diff difficulty, String category,
-                     String component, String flag, String steps) {
+                     String component, String objective) {
             this.id = id;
             this.name = name;
             this.difficulty = difficulty;
             this.category = category;
             this.component = component;
-            this.flag = flag;
-            this.steps = steps;
+            this.objective = objective;
         }
     }
 
     public static List<Chain> all() {
         List<Chain> c = new ArrayList<>();
 
-        // ===== EASY (single exported component, direct access) =====
+        // ===== EASY =====
 
-        // #1: launch exported AccountActivity, read balance + flag from screen
         c.add(new Chain(1, "Exported Balance Leak",
                 Diff.EASY, "activity", "AccountActivity",
-                "flag{01-exported-balance-leak}",
-                "①adb am start AccountActivity (exported, no auth) → balance+flag displayed"));
+                "Read the victim's wallet balance (¥12,800) without authentication"));
 
-        // #2: SQLi on ContactsProvider to dump the hidden flag contact
         c.add(new Chain(2, "SQLi Contact Dump",
                 Diff.EASY, "provider", "ContactsProvider",
-                "flag{02-sqli-contact-dump}",
-                "①query ContactsProvider with ' OR 1=1 -- → flag row appears"));
+                "Dump all contacts: names, phone numbers, national ID cards (身份证), emails"));
 
-        // #3: path traversal on FileBackupProvider to read wallet.db keys table
         c.add(new Chain(3, "Path Traversal to Wallet DB",
                 Diff.EASY, "provider", "FileBackupProvider",
-                "flag{03-path-traversal-wallet-db}",
-                "①read content://com.mochat.app.backup/..%2Fdatabases%2Fwallet.db "
-                + "②parse keys table → FLAG_03 entry"));
+                "Read wallet.db → recover MASTER_PIN (852013), PAY_TOKEN, bank card table"));
 
-        // ===== MEDIUM (cross-component, IPC + Intent extras) =====
+        // ===== MEDIUM =====
 
-        // #4: PendingIntent hijack — mutate file_uri extra
         c.add(new Chain(4, "PendingIntent Hijack",
                 Diff.MEDIUM, "intent", "PushService",
-                "flag{04-pendingintent-hijack}",
-                "①bind PushService, send MSG_GET_PENDING ②get mutable PendingIntent "
-                + "③mutate file_uri extra ④fire → flag_04 in result"));
+                "Hijack mutable PendingIntent → read mochat_prefs.xml (JWT, AppSecrets) via granted URI"));
 
-        // #5: WebView JS bridge — call exec() or getToken()
-        c.add(new Chain(5, "WebView JS-Bridge RCE",
+        c.add(new Chain(5, "WebView JS-Bridge Exploit",
                 Diff.MEDIUM, "webview", "MallH5Activity",
-                "flag{06-webview-js-bridge-rce}",
-                "①trigger mochat://mall/open?page=mall ②call MoChat.getToken() → flag appended"));
+                "Call MoChat.getToken() → steal JWT; MoChat.exec() → arbitrary command execution"));
 
-        // #6: Intent redirection via ShareReceiver
         c.add(new Chain(6, "Intent Redirection",
                 Diff.MEDIUM, "intent", "ShareReceiver",
-                "flag{04-pendingintent-hijack}",
-                "①send broadcast with nextIntentURI pointing to internal component "
-                + "②ShareReceiver forwards it → reach protected component"));
+                "Forward a crafted Intent to non-exported components under MoChat's identity"));
 
-        // #7: Broadcast token leak → intercept JWT
-        c.add(new Chain(7, "Broadcast Token Leak",
+        c.add(new Chain(7, "Broadcast Token Intercept",
                 Diff.MEDIUM, "receiver", "TokenReceiver",
-                "flag{04-pendingintent-hijack}",
-                "①register receiver for TOKEN_BROADCAST ②intercept JWT from token extra"));
+                "Register matching receiver → intercept JWT from TOKEN_BROADCAST"));
 
-        // ===== HARD (native reverse, crypto oracle, multi-step) =====
+        // ===== HARD =====
 
-        // #8: Messenger decrypt oracle — decrypt the flag BLOB
         c.add(new Chain(8, "Messenger Crypto Oracle",
                 Diff.HARD, "service", "WalletService",
-                "flag{05-messenger-decrypt-oracle}",
-                "①bind WalletService ②reverse native XOR (key[last]=0x21) "
-                + "③MSG_DECRYPT the u_flag account BLOB → plaintext flag"));
+                "Bind WalletService → reverse XOR → decrypt bank card numbers (622588...) from BLOBs"));
 
-        // #9: Parcel mismatch — forge paid=true via write/read skew
-        c.add(new Chain(9, "Parcel Mismatch Forge",
+        c.add(new Chain(9, "Parcel Mismatch Payment Forge",
                 Diff.HARD, "parcel", "OrderService",
-                "flag{07-parcel-mismatch-forge}",
-                "①bind OrderService ②craft PaymentOrder bytes matching WRITE order "
-                + "③read mismatch causes paid=true ④checkout returns flag"));
+                "Exploit writeToParcel/readFromParcel skew → forge paid=true → free order checkout"));
 
-        // ===== INSANE (full reverse + composition) =====
+        // ===== INSANE =====
 
-        // #10: AIDL auth bypass + native reverse + full chain
         c.add(new Chain(10, "AIDL Bypass + Native Reverse",
                 Diff.INSANE, "service+native", "WalletService + libmochat.so",
-                "flag{10-native-crypto-reverse}",
-                "①reverse libmochat.so OBFUSCATE macro ②recover XOR key "
-                + "③spoof packageName on MSG_ADMIN_QUERY → key table dump "
-                + "④reverse obfKey → final flag embedded in native"));
+                "Spoof packageName → dump key table; reverse libmochat.so → recover all encrypted data"));
 
         return Collections.unmodifiableList(c);
     }

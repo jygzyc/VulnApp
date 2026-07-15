@@ -42,10 +42,7 @@ public final class PushService extends Service {
             Intent target = new Intent("com.mochat.app.action.VIEW_FILE");
             target.setPackage("com.mochat.app");
             target.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            // FLAG 04: this value is reachable only if the attacker mutates the
-            // PendingIntent's file_uri extra to point at this hidden prefs entry.
             target.putExtra("file_uri", "content://com.mochat.app.backup/shared_prefs/mochat_prefs.xml");
-            target.putExtra("flag_04", "flag{04-pendingintent-hijack}");
 
             // VULNERABLE: FLAG_MUTABLE allows the receiver of this PendingIntent to
             // mutate the wrapped intent's extras (including the file_uri).

@@ -48,8 +48,8 @@ public final class WebViewBridgeImpl implements IWebViewBridge {
 
     @JavascriptInterface
     @Override public String getToken() {
-        // FLAG 06: returns the JWT with the flag appended — proof of JS bridge access.
-        return PrefStore.jwt(ctx()) + "\nflag{06-webview-js-bridge-rce}";
+        // Returns the real JWT — proof of exploitation is stealing this real token.
+        return PrefStore.jwt(ctx());
     }
 
     @JavascriptInterface
