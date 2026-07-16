@@ -25,8 +25,8 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: |
-            platforms;android-36
-            build-tools;36.0.0
+            platforms;android-35
+            build-tools;35.0.0
             ndk;27.2.12479018
             cmake;3.31.6
 
@@ -58,7 +58,7 @@ jobs:
       - name: Verify APK signature
         run: |
           SDK=/usr/local/lib/android/sdk
-          APKSIGNER="$SDK/build-tools/36.0.0/apksigner"
+          APKSIGNER="$SDK/build-tools/35.0.0/apksigner"
           APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
           echo "APK: $APK"
           "$APKSIGNER" verify --verbose "$APK" 2>&1 | head -8

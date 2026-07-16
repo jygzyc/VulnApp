@@ -20,12 +20,12 @@ val keystoreProperties = Properties().apply {
 
 android {
     namespace = "com.mochat.app"
-    compileSdk = 36
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mochat.app"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
