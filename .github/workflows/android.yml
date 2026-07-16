@@ -1,10 +1,13 @@
-name: Build MoChat APKs
+name: Build and Release MoChat APK
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
+    branches: [ main ]
+    tags: [ 'v*' ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -22,10 +25,10 @@ jobs:
         uses: android-actions/setup-android@v3
         with:
           packages: |
-            platforms;android-35
-            build-tools;35.0.0
-            ndk;27.1.12297006
-            cmake;3.22.1
+            platforms;android-36
+            build-tools;36.0.0
+            ndk;27.2.12479018
+            cmake;3.31.6
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -35,11 +38,51 @@ jobs:
             ~/.gradle/wrapper
           key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', 'gradle/**') }}
 
-      - name: Build release APK
-        run: ./gradlew --no-daemon assembleRelease --stacktrace
+      - name: Generate training keystore
+        run: |
+          keytool -genkeypair -v \
+            -keystore app/mochat-release.jks \
+            -storetype PKCS12 \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias mochat \
+            -storepass mochat123 -keypass mochat123 \
+            -dname "CN=MoChat Training, OU=Security Lab, O=VulnApp, L=Beijing, ST=Beijing, C=CN"
+          printf 'storeFile=app/mochat-release.jks\nstorePassword=mochat123\nkeyAlias=mochat\nkeyPassword=mochat123\n' > keystore.properties
 
-      - name: Upload APK
+      - name: Build signed release APK
+        run: ./gradlew --no-daemon clean assembleRelease --stacktrace
+
+      - name: Run unit tests
+        run: ./gradlew --no-daemon test
+
+      - name: Verify APK signature
+        run: |
+          SDK=/usr/local/lib/android/sdk
+          APKSIGNER="$SDK/build-tools/36.0.0/apksigner"
+          APK=$(find app/build/outputs/apk -name '*.apk' | head -1)
+          echo "APK: $APK"
+          "$APKSIGNER" verify --verbose "$APK" 2>&1 | head -8
+          ls -la "$APK"
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: mochat-release-apk
           path: app/build/outputs/apk/**/*.apk
+
+      - name: Create GitHub Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: MoChat Training App (latest)
+          body: |
+            Signed release APK for the MoChat vulnerable super-app training target.
+            
+            **Build**: ${{ github.sha }}
+            
+            See [README](https://github.com/jygzyc/VulnApp#readme) for build instructions
+            and [docs/chains](https://github.com/jygzyc/VulnApp/tree/main/docs/chains) for
+            the 10 exploit-chain writeups.
+          files: app/build/outputs/apk/**/*.apk
+          prerelease: true
