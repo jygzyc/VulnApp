@@ -51,10 +51,14 @@ jobs:
           printf 'storeFile=app/mochat-release.jks\nstorePassword=mochat123\nkeyAlias=mochat\nkeyPassword=mochat123\n' > keystore.properties
 
       - name: Build signed release APK
-        run: ./gradlew --no-daemon clean assembleRelease --stacktrace
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon clean assembleRelease --stacktrace
 
       - name: Run unit tests
-        run: ./gradlew --no-daemon test
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon test
 
       - name: Verify APK signature
         run: |
