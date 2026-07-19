@@ -1,19 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/nav_chat"
-        android:icon="@drawable/ic_chat"
-        android:title="@string/tab_chat" />
+        android:id="@+id/nav_chains"
+        android:icon="@drawable/ic_chains"
+        android:title="@string/tab_chains" />
     <item
-        android:id="@+id/nav_wallet"
-        android:icon="@drawable/ic_wallet"
-        android:title="@string/tab_wallet" />
-    <item
-        android:id="@+id/nav_mall"
-        android:icon="@drawable/ic_mall"
-        android:title="@string/tab_mall" />
-    <item
-        android:id="@+id/nav_profile"
-        android:icon="@drawable/ic_profile"
-        android:title="@string/tab_profile" />
+        android:id="@+id/nav_about"
+        android:icon="@drawable/ic_info"
+        android:title="@string/tab_about" />
 </menu>

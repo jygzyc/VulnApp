@@ -5,14 +5,14 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 10 exploit chains in strict ascending difficulty.
+ * 20 exploit chains covering <b>every</b> Android app-layer vulnerability type.
  *
- * <p>There are no artificial "flag{}" strings. The proof of exploitation is
- * recovering <b>real sensitive data</b>: bank card numbers, payment PINs, JWT
- * tokens, private chat messages, server credentials. Each chain's {@code objective}
- * field describes the real-world data the attacker obtains.</p>
+ * <p>Sourced from the IMA mobile-security knowledge base (Android App漏洞之战 20
+ * articles + Android 组件逻辑漏洞漫谈 25 articles) and the decx composite-chain
+ * framework. Difficulty is strictly ascending: #1 is the easiest, #20 the hardest.</p>
  *
- * <p>Difficulty ladder: EASY (#1-3) → MEDIUM (#4-7) → HARD (#8-9) → INSANE (#10).</p>
+ * <p>Each chain has a {@code category} matching one of the standard vuln types and
+ * an {@code objective} describing the real data an attacker obtains.</p>
  */
 public final class Chains {
 
@@ -25,71 +25,131 @@ public final class Chains {
         public final String name;
         public final Diff  difficulty;
         public final String category;
-        public final String component;
-        /** The real sensitive data an attacker obtains — proof of exploitation. */
         public final String objective;
+        /** Brief how-to (what the attacker does). */
+        public final String hint;
 
         public Chain(int id, String name, Diff difficulty, String category,
-                     String component, String objective) {
+                     String objective, String hint) {
             this.id = id;
             this.name = name;
             this.difficulty = difficulty;
             this.category = category;
-            this.component = component;
             this.objective = objective;
+            this.hint = hint;
         }
     }
 
     public static List<Chain> all() {
         List<Chain> c = new ArrayList<>();
 
-        // ===== EASY =====
+        // ===== EASY (1-6): single-component, direct access =====
 
-        c.add(new Chain(1, "Exported Balance Leak",
-                Diff.EASY, "activity", "AccountActivity",
-                "Read the victim's wallet balance (¥12,800) without authentication"));
+        c.add(new Chain(1, "导出 Activity 泄露余额",
+                Diff.EASY, "Activity",
+                "直接看到钱包余额 ¥12,800",
+                "启动导出的 AccountActivity,无需登录"));
 
-        c.add(new Chain(2, "SQLi Contact Dump",
-                Diff.EASY, "provider", "ContactsProvider",
-                "Dump all contacts: names, phone numbers, national ID cards (身份证), emails"));
+        c.add(new Chain(2, "SQL 注入读取通讯录",
+                Diff.EASY, "Content Provider",
+                "dump 全部联系人:姓名/手机/身份证号/邮箱",
+                "对 ContactsProvider 注入 ' OR '1'='1"));
 
-        c.add(new Chain(3, "Path Traversal to Wallet DB",
-                Diff.EASY, "provider", "FileBackupProvider",
-                "Read wallet.db → recover MASTER_PIN (852013), PAY_TOKEN, bank card table"));
+        c.add(new Chain(3, "路径穿越读取数据库",
+                Diff.EASY, "Content Provider",
+                "读取 wallet.db → 支付密码 / PAY_TOKEN",
+                "FileBackupProvider 的 ../ 穿越"));
 
-        // ===== MEDIUM =====
+        c.add(new Chain(4, "明文存储泄露密钥",
+                Diff.EASY, "存储安全",
+                "从 SharedPreferences 读取 JWT + AppSecret",
+                "adb backup 或 FileBackupProvider 读 mochat_prefs.xml"));
 
-        c.add(new Chain(4, "PendingIntent Hijack",
-                Diff.MEDIUM, "intent", "PushService",
-                "Hijack mutable PendingIntent → read mochat_prefs.xml (JWT, AppSecrets) via granted URI"));
+        c.add(new Chain(5, "敏感信息日志泄露",
+                Diff.EASY, "信息泄露",
+                "从 logcat 读取余额、token、调试信息",
+                "adb logcat 抓取 debuggable App 的 Log 输出"));
 
-        c.add(new Chain(5, "WebView JS-Bridge Exploit",
-                Diff.MEDIUM, "webview", "MallH5Activity",
-                "Call MoChat.getToken() → steal JWT; MoChat.exec() → arbitrary command execution"));
+        c.add(new Chain(6, "不安全配置(allowBackup)",
+                Diff.EASY, "安全配置",
+                "完整备份 App 数据到 PC",
+                "adb backup 提取全部 DB + prefs"));
 
-        c.add(new Chain(6, "Intent Redirection",
-                Diff.MEDIUM, "intent", "ShareReceiver",
-                "Forward a crafted Intent to non-exported components under MoChat's identity"));
+        // ===== MEDIUM (7-12): cross-component, IPC =====
 
-        c.add(new Chain(7, "Broadcast Token Intercept",
-                Diff.MEDIUM, "receiver", "TokenReceiver",
-                "Register matching receiver → intercept JWT from TOKEN_BROADCAST"));
+        c.add(new Chain(7, "WebView JS Bridge RCE",
+                Diff.MEDIUM, "WebView",
+                "JS 调用 exec() 执行任意命令 / getToken() 偷 JWT",
+                "deeplink mochat://mall/open → MoChat.exec('id')"));
 
-        // ===== HARD =====
+        c.add(new Chain(8, "WebView 文件同源绕过",
+                Diff.MEDIUM, "WebView",
+                "通过 file:// 读取 App 私有文件",
+                "setAllowFileAccessFromFileURLs(true) + XHR"));
 
-        c.add(new Chain(8, "Messenger Crypto Oracle",
-                Diff.HARD, "service", "WalletService",
-                "Bind WalletService → reverse XOR → decrypt bank card numbers (622588...) from BLOBs"));
+        c.add(new Chain(9, "导出 Service Messenger 滥用",
+                Diff.MEDIUM, "Service",
+                "通过 WalletService 发起未授权转账",
+                "bindService → Messenger.send(MSG_PAY)"));
 
-        c.add(new Chain(9, "Parcel Mismatch Payment Forge",
-                Diff.HARD, "parcel", "OrderService",
-                "Exploit writeToParcel/readFromParcel skew → forge paid=true → free order checkout"));
+        c.add(new Chain(10, "广播 Token 拦截",
+                Diff.MEDIUM, "Broadcast Receiver",
+                "注册接收器拦截 TOKEN_BROADCAST → JWT",
+                "Manifest 声明 receiver 监听 token 广播"));
 
-        // ===== INSANE =====
+        c.add(new Chain(11, "有序广播劫持",
+                Diff.MEDIUM, "Broadcast Receiver",
+                "高优先级接收器抢截并篡改广播内容",
+                "priority=MAX + abortBroadcast()"));
 
-        c.add(new Chain(10, "AIDL Bypass + Native Reverse",
-                Diff.INSANE, "service+native", "WalletService + libmochat.so",
-                "Spoof packageName → dump key table; reverse libmochat.so → recover all encrypted data"));
+        c.add(new Chain(12, "Fragment 注入",
+                Diff.MEDIUM, "Fragment",
+                "加载任意 Fragment 类,绕过界面权限",
+                "Intent extra 传入 Fragment 类名 → 反射实例化"));
+
+        // ===== HARD (13-17): crypto, intent composition, auth =====
+
+        c.add(new Chain(13, "Intent 重定向",
+                Diff.HARD, "Intent",
+                "穿透到非导出组件,执行受保护操作",
+                "ShareReceiver 取出嵌套 Intent → startActivity"));
+
+        c.add(new Chain(14, "PendingIntent 劫持",
+                Diff.HARD, "PendingIntent",
+                "篡改 mutable PendingIntent 的 URI extra",
+                "bind PushService → MSG_GET_PENDING → mutate"));
+
+        c.add(new Chain(15, "Messenger 解密 Oracle",
+                Diff.HARD, "Service",
+                "逆向 XOR → 解密银行卡号",
+                "bind WalletService → MSG_DECRYPT 解密 BLOB"));
+
+        c.add(new Chain(16, "Parcel 序列化错位",
+                Diff.HARD, "Parcel",
+                "伪造 paid=true → 免费下单",
+                "OrderService PaymentOrder write/read 不匹配"));
+
+        c.add(new Chain(17, "验证码本地校验绕过",
+                Diff.HARD, "验证码",
+                "绕过短信验证码,任意修改密码",
+                "Frida hook 或 patch 本地校验逻辑"));
+
+        // ===== INSANE (18-20): full reverse + composition =====
+
+        c.add(new Chain(18, "AIDL 授权绕过 + 密钥提取",
+                Diff.INSANE, "Service",
+                "伪造包名 → dump 密钥表 → 拿到 PAY_TOKEN",
+                "MSG_ADMIN_QUERY 传 packageName=com.mochat.app.trusted"));
+
+        c.add(new Chain(19, "ZipSlip + 动态加载 RCE",
+                Diff.INSANE, "插件化",
+                "写入恶意 .so/.dex → System.load/DexClassLoader",
+                "OrderService MSG_INSTALL zip 带 ../../ 路径穿越"));
+
+        c.add(new Chain(20, "Native 加密逆向 + 反调试绕过",
+                Diff.INSANE, "加密/反调试",
+                "逆向 libmochat.so XOR + OBFUSCATE → 恢复全部密文",
+                "Ghidra/IDA 逆向 + Frida bypass anti-debug"));
 
         return Collections.unmodifiableList(c);
     }

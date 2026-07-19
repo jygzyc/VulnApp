@@ -1,40 +1,20 @@
 <resources>
-    <string name="app_name">MoChat</string>
+    <string name="app_name">MoChat 靶场</string>
+    <string name="version_badge">v2.0</string>
+    <string name="hero_subtitle">Android 应用漏洞训练靶场 · 覆盖全部组件漏洞类型</string>
+    <string name="hero_warning">⚠️ 这是一个故意包含漏洞的训练应用,仅供安全研究/CTF/教学使用。请勿用于非法目的,请勿在真实设备上存储敏感数据。</string>
+    <string name="hero_chain_count">20 条攻击链路 · 难度递增 · 点击查看详情</string>
 
     <!-- Tabs -->
-    <string name="tab_chat">Chats</string>
-    <string name="tab_wallet">Wallet</string>
-    <string name="tab_mall">Mall</string>
-    <string name="tab_profile">Me</string>
+    <string name="tab_chains">攻击链</string>
+    <string name="tab_about">说明</string>
 
-    <!-- Chat -->
-    <string name="chat_title">Chats</string>
-    <string name="chat_search_hint">Search contacts…</string>
-
-    <!-- Wallet -->
-    <string name="wallet_title">Wallet</string>
-    <string name="wallet_balance_label">Balance (fen)</string>
-    <string name="wallet_pay">Transfer</string>
-    <string name="wallet_pay_hint_to">Recipient account id</string>
-    <string name="wallet_pay_hint_amount">Amount (fen)</string>
-    <string name="wallet_pay_hint_pin">PIN (optional)</string>
-    <string name="wallet_pay_btn">Pay</string>
-    <string name="wallet_result_default">Enter transfer details and tap Pay.</string>
-
-    <!-- Mall -->
-    <string name="mall_title">Mall</string>
-    <string name="mall_h5_section">WebView Container</string>
-    <string name="mall_open_h5">Open Mall H5</string>
-    <string name="mall_open_miniapp">Open Mini App</string>
-    <string name="mall_pay_web">Pay Web (TLS)</string>
-
-    <!-- Profile -->
-    <string name="profile_title">My Account</string>
-    <string name="profile_user">Alice · u_1001</string>
-    <string name="profile_security">Security Check</string>
-    <string name="profile_chains">Exploit Chains (reference)</string>
-    <string name="profile_chains_sub">10 composite chains · tap for writeup</string>
-
-    <!-- Generic -->
-    <string name="empty">—</string>
+    <!-- Chain detail -->
+    <string name="chain_detail_difficulty">难度</string>
+    <string name="chain_detail_category">漏洞类型</string>
+    <string name="chain_detail_objective">攻击目标</string>
+    <string name="chain_detail_hint">利用方法</string>
+    <string name="chain_detail_surface">漏洞组件</string>
+    <string name="chain_detail_vuln">漏洞代码</string>
+    <string name="chain_detail_trigger">触发方式</string>
 </resources>

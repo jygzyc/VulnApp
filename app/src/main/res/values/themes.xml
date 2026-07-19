@@ -51,6 +51,11 @@
         <item name="android:letterSpacing">0.01</item>
     </style>
 
+    <style name="Text.Subtle">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
     <!-- Chain card texts -->
     <style name="Text.ChainId">
         <item name="android:textColor">@color/accent</item>
