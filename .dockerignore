@@ -1,0 +1,14 @@
+# Keep container build context small (repo root is the context for docker/Dockerfile.ctf)
+.git
+.gradle
+.idea
+build
+app/build
+app/.cxx
+ctf/runs
+docker/*.log
+*.apk
+!app/build/outputs/apk/**/app-*-release.apk
+local.properties
+keystore.properties
+app/mochat-release.jks

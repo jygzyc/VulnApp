@@ -29,3 +29,9 @@ Thumbs.db
 # AI
 .zcode
 
+
+# CTF benchmark runs (per-run artifacts; scoreboard IS committed)
+ctf/runs/
+
+# Python
+__pycache__/
